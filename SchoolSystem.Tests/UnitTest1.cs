@@ -3,7 +3,6 @@ using SchoolSystem.Application.DTOs;
 using SchoolSystem.Application.Services;
 using SchoolSystem.Domain.Entities;
 using SchoolSystem.Domain.Interfaces;
-using System.Threading.Tasks;
 
 namespace SchoolSystem.Tests;
 
