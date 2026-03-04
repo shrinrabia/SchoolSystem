@@ -1,4 +1,5 @@
 using Moq;
+using Microsoft.Extensions.Caching.Memory;
 using SchoolSystem.Application.DTOs;
 using SchoolSystem.Application.Services;
 using SchoolSystem.Domain.Entities;
@@ -17,7 +18,7 @@ public class SchoolTests
 
         mockUnitOfWork.Setup(u => u.Teachers).Returns(mockRepo.Object);
 
-        var service = new SchoolService(mockUnitOfWork.Object);
+        var service = new SchoolService(mockUnitOfWork.Object, new MemoryCache(new MemoryCacheOptions()));
         var createDto = new CreateTeacherDto { Name = "Anna", Email = "anna@school.com" };
 
         // Act

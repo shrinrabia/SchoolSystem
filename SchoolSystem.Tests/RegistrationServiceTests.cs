@@ -1,4 +1,5 @@
 using Moq;
+using Microsoft.Extensions.Caching.Memory;
 using SchoolSystem.Application.DTOs;
 using SchoolSystem.Application.Services;
 using SchoolSystem.Domain.Entities;
@@ -17,7 +18,7 @@ public class RegistrationServiceTests
         _uow = new Mock<IUnitOfWork>();
         _regRepo = new Mock<IRepository<CourseRegistration>>();
         _uow.Setup(u => u.CourseRegistrations).Returns(_regRepo.Object);
-        _svc = new SchoolService(_uow.Object);
+        _svc = new SchoolService(_uow.Object, new MemoryCache(new MemoryCacheOptions()));
     }
 
     [Fact]
