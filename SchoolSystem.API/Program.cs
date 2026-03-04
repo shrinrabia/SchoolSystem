@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Dependency Injection
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

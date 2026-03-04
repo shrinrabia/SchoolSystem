@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using SchoolSystem.Application.DTOs;
 using SchoolSystem.Application.Interfaces;
 using SchoolSystem.Domain.Entities;
@@ -11,10 +12,12 @@ namespace SchoolSystem.Application.Services;
 public class SchoolService : ISchoolService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMemoryCache _cache;
 
-    public SchoolService(IUnitOfWork unitOfWork)
+    public SchoolService(IUnitOfWork unitOfWork, IMemoryCache cache)
     {
         _unitOfWork = unitOfWork;
+        _cache = cache;
     }
 
     public async Task<IEnumerable<TeacherDto>> GetAllTeachersAsync()
@@ -61,16 +64,20 @@ public class SchoolService : ISchoolService
 
     public async Task<IEnumerable<CourseDto>> GetAllCoursesAsync()
     {
-        // This is a simplified version. Ideally we'd include Teacher data.
+        if (_cache.TryGetValue("all_courses", out IEnumerable<CourseDto>? cached) && cached != null)
+            return cached;
+
         var courses = await _unitOfWork.Courses.GetAllAsync();
-        // Just return the course info for now to match interface.
-        return courses.Select(c => new CourseDto 
+        var result = courses.Select(c => new CourseDto 
         { 
             Id = c.Id, 
             Name = c.Name, 
             Description = c.Description, 
             TeacherId = c.TeacherId 
-        });
+        }).ToList();
+
+        _cache.Set("all_courses", (IEnumerable<CourseDto>)result, TimeSpan.FromMinutes(5));
+        return result;
     }
 
     public async Task<CourseDto?> GetCourseByIdAsync(int id)
@@ -95,6 +102,7 @@ public class SchoolService : ISchoolService
         };
         await _unitOfWork.Courses.AddAsync(course);
         await _unitOfWork.SaveChangesAsync();
+        _cache.Remove("all_courses");
         return new CourseDto 
         { 
             Id = course.Id, 
@@ -114,6 +122,7 @@ public class SchoolService : ISchoolService
             course.TeacherId = dto.TeacherId;
             _unitOfWork.Courses.Update(course);
             await _unitOfWork.SaveChangesAsync();
+            _cache.Remove("all_courses");
         }
     }
 
@@ -124,6 +133,7 @@ public class SchoolService : ISchoolService
         {
             _unitOfWork.Courses.Delete(course);
             await _unitOfWork.SaveChangesAsync();
+            _cache.Remove("all_courses");
         }
     }
 
