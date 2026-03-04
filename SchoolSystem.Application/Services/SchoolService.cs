@@ -287,4 +287,9 @@ public class SchoolService : ISchoolService
             await _unitOfWork.SaveChangesAsync();
         }
     }
+
+    public async Task<List<Domain.Interfaces.CourseRegistrationCountDto>> GetRegistrationCountsAsync()
+    {
+        return await _unitOfWork.GetRegistrationCountsAsync();
+    }
 }

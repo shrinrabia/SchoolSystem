@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SchoolSystem.Application.DTOs;
+using SchoolSystem.Domain.Interfaces;
 
 namespace SchoolSystem.Application.Interfaces;
 
@@ -39,4 +40,5 @@ public interface ISchoolService
     Task<CourseRegistrationDto?> GetRegistrationByIdAsync(int id);
     Task<CourseRegistrationDto> CreateRegistrationAsync(CreateCourseRegistrationDto dto);
     Task DeleteRegistrationAsync(int id);
+    Task<List<CourseRegistrationCountDto>> GetRegistrationCountsAsync();
 }

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SchoolSystem.Domain.Entities;
 using SchoolSystem.Domain.Interfaces;
 
@@ -27,5 +28,20 @@ public class UnitOfWork : IUnitOfWork
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<CourseRegistrationCountDto>> GetRegistrationCountsAsync()
+    {
+        var sql = @"SELECT c.Name AS CourseName, COUNT(cr.Id) AS RegistrationCount
+                     FROM Courses c
+                     LEFT JOIN CourseInstances ci ON ci.CourseId = c.Id
+                     LEFT JOIN CourseRegistrations cr ON cr.CourseInstanceId = ci.Id
+                     GROUP BY c.Name";
+
+        var results = await _context.Database
+            .SqlQueryRaw<CourseRegistrationCountDto>(sql)
+            .ToListAsync();
+
+        return results;
     }
 }

@@ -128,4 +128,6 @@ app.MapDelete("/api/registrations/{id}", async (int id, ISchoolService service) 
     return Results.NoContent();
 });
 
+app.MapGet("/api/registrations/counts", async (ISchoolService service) => await service.GetRegistrationCountsAsync());
+
 app.Run();
