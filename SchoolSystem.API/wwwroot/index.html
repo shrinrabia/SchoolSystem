@@ -1,21 +1,70 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>School Management System</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-        .section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        button, input { margin: 5px 0; padding: 8px; border-radius: 4px; border: 1px solid #ccc;}
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        .delete-btn { background-color: #dc3545; }
-        .delete-btn:hover { background-color: #a71d2a; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button,
+        input {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background-color: #a71d2a;
+        }
     </style>
 </head>
+
 <body>
     <h1>School Management System</h1>
     <p>Use the interface below to test the Minimal API CRUD endpoints.</p>
@@ -54,6 +103,29 @@
         <button onclick="addParticipant()">Add</button>
     </div>
 
+    <!-- Course Instances -->
+    <div class="section" id="instances">
+        <h2>Course Instances</h2>
+        <button onclick="loadInstances()">Load Instances</button>
+        <div id="instancesList"></div>
+        <h3>Add Course Instance</h3>
+        <input type="number" id="ciCourseId" placeholder="Course ID">
+        <input type="date" id="ciStart">
+        <input type="date" id="ciEnd">
+        <button onclick="addInstance()">Add</button>
+    </div>
+
+    <!-- Registrations -->
+    <div class="section" id="registrations">
+        <h2>Registrations</h2>
+        <button onclick="loadRegistrations()">Load Registrations</button>
+        <div id="registrationsList"></div>
+        <h3>Register Participant to Course Instance</h3>
+        <input type="number" id="regParticipantId" placeholder="Participant ID">
+        <input type="number" id="regInstanceId" placeholder="Course Instance ID">
+        <button onclick="addRegistration()">Add</button>
+    </div>
+
     <script>
         // --- Teachers ---
         async function loadTeachers() {
@@ -65,8 +137,8 @@
         }
         async function addTeacher() {
             await fetch('/api/teachers', {
-                method: 'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({name: document.getElementById('tName').value, email: document.getElementById('tEmail').value})
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: document.getElementById('tName').value, email: document.getElementById('tEmail').value })
             });
             loadTeachers();
         }
@@ -81,10 +153,10 @@
         }
         async function addCourse() {
             await fetch('/api/courses', {
-                method: 'POST', headers:{'Content-Type':'application/json'},
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: document.getElementById('cName').value, 
-                    description: document.getElementById('cDesc').value, 
+                    name: document.getElementById('cName').value,
+                    description: document.getElementById('cDesc').value,
                     teacherId: parseInt(document.getElementById('cTeacherId').value)
                 })
             });
@@ -101,10 +173,49 @@
         }
         async function addParticipant() {
             await fetch('/api/participants', {
-                method: 'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({name: document.getElementById('pName').value, email: document.getElementById('pEmail').value})
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: document.getElementById('pName').value, email: document.getElementById('pEmail').value })
             });
             loadParticipants();
+        }
+
+        // --- Course Instances ---
+        async function loadInstances() {
+            const res = await fetch('/api/courseinstances');
+            const data = await res.json();
+            const list = data.map(i => `<tr><td>${i.id}</td><td>${i.courseId}</td><td>${i.startDate?.substring(0, 10)}</td><td>${i.endDate?.substring(0, 10)}</td>
+                <td><button class="delete-btn" onclick="deleteResource('/api/courseinstances/${i.id}', loadInstances)">Delete</button></td></tr>`).join('');
+            document.getElementById('instancesList').innerHTML = `<table><tr><th>ID</th><th>Course ID</th><th>Start</th><th>End</th><th>Actions</th></tr>${list}</table>`;
+        }
+        async function addInstance() {
+            await fetch('/api/courseinstances', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    courseId: parseInt(document.getElementById('ciCourseId').value),
+                    startDate: document.getElementById('ciStart').value,
+                    endDate: document.getElementById('ciEnd').value
+                })
+            });
+            loadInstances();
+        }
+
+        // --- Registrations ---
+        async function loadRegistrations() {
+            const res = await fetch('/api/registrations');
+            const data = await res.json();
+            const list = data.map(r => `<tr><td>${r.id}</td><td>${r.participantId}</td><td>${r.courseInstanceId}</td><td>${r.registrationDate?.substring(0, 10)}</td>
+                <td><button class="delete-btn" onclick="deleteResource('/api/registrations/${r.id}', loadRegistrations)">Delete</button></td></tr>`).join('');
+            document.getElementById('registrationsList').innerHTML = `<table><tr><th>ID</th><th>Participant ID</th><th>Instance ID</th><th>Date</th><th>Actions</th></tr>${list}</table>`;
+        }
+        async function addRegistration() {
+            await fetch('/api/registrations', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    participantId: parseInt(document.getElementById('regParticipantId').value),
+                    courseInstanceId: parseInt(document.getElementById('regInstanceId').value)
+                })
+            });
+            loadRegistrations();
         }
 
         // Generic Delete
@@ -117,6 +228,9 @@
         loadTeachers();
         loadCourses();
         loadParticipants();
+        loadInstances();
+        loadRegistrations();
     </script>
 </body>
+
 </html>
