@@ -130,4 +130,10 @@ app.MapDelete("/api/registrations/{id}", async (int id, ISchoolService service) 
 
 app.MapGet("/api/registrations/counts", async (ISchoolService service) => await service.GetRegistrationCountsAsync());
 
+app.MapPost("/api/registrations/batch", async (List<CreateCourseRegistrationDto> dtos, ISchoolService service) =>
+{
+    var created = await service.BatchRegisterAsync(dtos);
+    return Results.Ok(created);
+});
+
 app.Run();

@@ -41,4 +41,5 @@ public interface ISchoolService
     Task<CourseRegistrationDto> CreateRegistrationAsync(CreateCourseRegistrationDto dto);
     Task DeleteRegistrationAsync(int id);
     Task<List<CourseRegistrationCountDto>> GetRegistrationCountsAsync();
+    Task<List<CourseRegistrationDto>> BatchRegisterAsync(List<CreateCourseRegistrationDto> dtos);
 }

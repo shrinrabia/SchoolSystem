@@ -292,4 +292,38 @@ public class SchoolService : ISchoolService
     {
         return await _unitOfWork.GetRegistrationCountsAsync();
     }
+
+    public async Task<List<CourseRegistrationDto>> BatchRegisterAsync(List<CreateCourseRegistrationDto> dtos)
+    {
+        await _unitOfWork.BeginTransactionAsync();
+        try
+        {
+            var results = new List<CourseRegistrationDto>();
+            foreach (var dto in dtos)
+            {
+                var reg = new CourseRegistration
+                {
+                    ParticipantId = dto.ParticipantId,
+                    CourseInstanceId = dto.CourseInstanceId,
+                    RegistrationDate = DateTime.UtcNow
+                };
+                await _unitOfWork.CourseRegistrations.AddAsync(reg);
+                await _unitOfWork.SaveChangesAsync();
+                results.Add(new CourseRegistrationDto
+                {
+                    Id = reg.Id,
+                    ParticipantId = reg.ParticipantId,
+                    CourseInstanceId = reg.CourseInstanceId,
+                    RegistrationDate = reg.RegistrationDate
+                });
+            }
+            await _unitOfWork.CommitTransactionAsync();
+            return results;
+        }
+        catch
+        {
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
+        }
+    }
 }

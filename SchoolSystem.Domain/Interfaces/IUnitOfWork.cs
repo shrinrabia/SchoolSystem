@@ -13,6 +13,9 @@ public interface IUnitOfWork
     
     Task<int> SaveChangesAsync();
     Task<List<CourseRegistrationCountDto>> GetRegistrationCountsAsync();
+    Task BeginTransactionAsync();
+    Task CommitTransactionAsync();
+    Task RollbackTransactionAsync();
 }
 
 public class CourseRegistrationCountDto
